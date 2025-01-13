@@ -25,6 +25,8 @@ workflow METHSNP {
 
     ch_versions = Channel.empty()
 
+    ch_samplesheet.view()
+
     //
     // Collate and save software versions
     //
