@@ -8,9 +8,9 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { SAMTOOLS_CONVERT } from '../../modules/nf-core/samtools/convert/main'
-include { SAMTOOLS_INDEX } from '../../modules/nf-core/samtools/index/main'
-include { SAMTOOLS_FAIDX } from '../../modules/nf-core/samtools/faidx/main'
+include { SAMTOOLS_CONVERT } from '../../../modules/nf-core/samtools/convert/main'
+include { SAMTOOLS_INDEX } from '../../../modules/nf-core/samtools/index/main'
+include { SAMTOOLS_FAIDX } from '../../../modules/nf-core/samtools/faidx/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
