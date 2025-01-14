@@ -10,6 +10,7 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_meth
 // nf-core subworkflows
 
 // local subworkflows
+include { BAM_TO_CRAM } from '../subworkflows/local/bam_to_cram/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,7 +26,14 @@ workflow METHSNP {
 
     ch_versions = Channel.empty()
 
-    ch_samplesheet.view()
+    // TODO: BAM to CRAM
+    BAM_TO_CRAM(ch_samplesheet)
+
+    // TODO: GATK HaplotypeCaller
+
+    // TODO: GATK VQSR and CpG sites filtering
+
+    // TODO: Variant Annotation
 
     //
     // Collate and save software versions
