@@ -45,8 +45,9 @@ workflow BAM_TO_CRAM {
 
     // Index the BAM file if BAI file does not exist
     ch_bam_index = ch_samplesheet.map { meta, bam_file_path ->
-        def bai_file1 = bam_file_path.replace('.bam', '.bai')  // {prefix}.bai
-        def bai_file2 = bam_file_path + '.bai'                 // {prefix}.bam.bai
+        def bam_file_string = bam_file_path.toString()           // Convert to String
+        def bai_file1 = bam_file_string.replace('.bam', '.bai')  // {prefix}.bai
+        def bai_file2 = bam_file_string + '.bai'                 // {prefix}.bam.bai
 
         def index_file = file(bai_file1).exists() ? bai_file1 :
                          file(bai_file2).exists() ? bai_file2 : null
