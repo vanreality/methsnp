@@ -29,7 +29,7 @@ workflow CRAM_HAPLOTYPECALLER_VARIANT_CALLING {
     ch_versions = Channel.empty()
 
     GATK4_CREATESEQUENCEDICTIONARY(ch_fasta)
-    ch_dict = GATK4_CREATESEQUENCEDICTIONARY.out.dicts
+    ch_dict = GATK4_CREATESEQUENCEDICTIONARY.out.dict
     ch_versions = ch_versions.mix(GATK4_CREATESEQUENCEDICTIONARY.out.versions)
 
     if (!file(region_file_path).exists()) {
