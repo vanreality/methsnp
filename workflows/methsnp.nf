@@ -11,6 +11,7 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_meth
 
 // local subworkflows
 include { BAM_TO_CRAM } from '../subworkflows/local/bam_to_cram/main'
+include { CRAM_HAPLOTYPECALLER_VARIANT_CALLING } from '../subworkflows/local/cram_haplotypecaller_variant_calling/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -22,14 +23,19 @@ workflow METHSNP {
 
     take:
     ch_samplesheet // channel: samplesheet read in from --input
-    main:
 
+    main:
     ch_versions = Channel.empty()
 
-    // TODO: BAM to CRAM
+    // BAM to CRAM
     BAM_TO_CRAM(ch_samplesheet)
+    ch_crams = BAM_TO_CRAM.out.crams
+    ch_fasta = BAM_TO_CRAM.out.fasta
+    ch_fai   = BAM_TO_CRAM.out.fai
+    ch_versions = ch_versions.mix(BAM_TO_CRAM.out.versions)
 
-    // TODO: GATK HaplotypeCaller
+    // GATK HaplotypeCaller
+    CRAM_HAPLOTYPECALLER_VARIANT_CALLING(ch_crams, ch_fasta, ch_fai)
 
     // TODO: GATK VQSR and CpG sites filtering
 

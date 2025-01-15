@@ -68,7 +68,11 @@ workflow BAM_TO_CRAM {
         ch_fasta_index
     )
 
+    ch_cram_crai = SAMTOOLS_CONVERT.out.cram.join(SAMTOOLS_CONVERT.out.crai)
+
     emit:
-    cram        = SAMTOOLS_CONVERT.out.cram
+    crams       = ch_cram_crai
+    fasta       = ch_fasta
+    fai         = ch_fasta_index
     versions    = ch_versions
 }
