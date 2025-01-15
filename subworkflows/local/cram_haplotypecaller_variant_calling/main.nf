@@ -20,8 +20,8 @@ include { GATK4_HAPLOTYPECALLER } from '../../../modules/nf-core/gatk4/haplotype
 workflow CRAM_HAPLOTYPECALLER_VARIANT_CALLING {
     take:
     ch_crams     // channel: [meta, cram, crai]
-    ch_fasta    // channel: [meta2, fasta]
-    ch_fai      // channel: [meta3, fai]
+    ch_fasta     // channel: [meta2, fasta]
+    ch_fai       // channel: [meta3, fai]
 
     main:
     def region_file_path = params.region
@@ -37,7 +37,7 @@ workflow CRAM_HAPLOTYPECALLER_VARIANT_CALLING {
         }
     } else {
         ch_crams = ch_crams.map{ meta, cram, crai ->
-            tuple(meta, cram, crai, file(params.region), [])
+            tuple(meta, cram, crai, file(region_file_path), [])
         }
     }
 

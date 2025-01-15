@@ -43,6 +43,14 @@
                     "description": "Path to the reference genome file in FASTA format.",
                     "help_text": "Specify the location of the reference genome file. It should be in FASTA format with a .fasta or .fa extension.",
                     "fa_icon": "fas fa-dna"
+                },
+                "region": {
+                    "type": "string",
+                    "format": "file-path",
+                    "pattern": "^\\S+\\.bed$",
+                    "description": "Path to the genomic region file in BED format.",
+                    "help_text": "Specify the genomic regions. It should be in BED format with a .bed extension.",
+                    "fa_icon": "fas fa-file-tsv"
                 }
             }
         },
