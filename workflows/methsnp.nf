@@ -10,9 +10,9 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_meth
 // nf-core subworkflows
 
 // local subworkflows
-include { BAM_TO_CRAM } from '../subworkflows/local/bam_to_cram/main'
+include { BAM_PREPROCESS } from '../subworkflows/local/bam_preprocess/main'
 include { CRAM_HAPLOTYPECALLER_VARIANT_CALLING } from '../subworkflows/local/cram_haplotypecaller_variant_calling/main'
-// include { VCF_FILTERING } from '../subworkflows/local/vcf_filtering/main'
+//include { VCF_POSTPROCESS } from '../subworkflows/local/vcf_postprocess/main'
 include { VCF_QC_BCFTOOLS_VCFTOOLS } from '../subworkflows/local/vcf_qc_bcftools_vcftools/main'
 
 /*
@@ -29,24 +29,30 @@ workflow METHSNP {
     main:
     ch_versions = Channel.empty()
 
-    // BAM to CRAM
-    BAM_TO_CRAM(ch_samplesheet)
-    ch_cram  = BAM_TO_CRAM.out.cram
-    ch_fasta = BAM_TO_CRAM.out.fasta
-    ch_fai   = BAM_TO_CRAM.out.fai
-    ch_versions = ch_versions.mix(BAM_TO_CRAM.out.versions)
+    // BAM preprocessing
+    BAM_PREPROCESS(ch_samplesheet)
+    ch_cram     = BAM_PREPROCESS.out.cram
+    ch_fasta    = BAM_PREPROCESS.out.fasta
+    ch_fai      = BAM_PREPROCESS.out.fai
+    ch_versions = ch_versions.mix(BAM_PREPROCESS.out.versions)
 
     // GATK HaplotypeCaller
     CRAM_HAPLOTYPECALLER_VARIANT_CALLING(ch_cram, ch_fasta, ch_fai)
-    ch_vcf = CRAM_HAPLOTYPECALLER_VARIANT_CALLING.out.vcf
-    ch_tbi = CRAM_HAPLOTYPECALLER_VARIANT_CALLING.out.tbi
+    ch_gatk_vcf = CRAM_HAPLOTYPECALLER_VARIANT_CALLING.out.vcf
+    ch_gatk_tbi = CRAM_HAPLOTYPECALLER_VARIANT_CALLING.out.tbi
     ch_versions = ch_versions.mix(CRAM_HAPLOTYPECALLER_VARIANT_CALLING.out.versions)
 
-    // Filtering
-    // VCF_FILTERING(ch_vcf)
+    // DeepVariant
+    CRAM_DEEPVARIANT_VARIANT_CALLING(ch_cram, ch_fasta, ch_fai)
+    ch_dv_vcf   = CRAM_DEEPVARIANT_VARIANT_CALLING.out.vcf
+    ch_dv_tbi   = CRAM_DEEPVARIANT_VARIANT_CALLING.out.tbi
+    ch_versions = ch_versions.mix(CRAM_DEEPVARIANT_VARIANT_CALLING.out.versions)
+
+    // VCF postprocessing
+    // VCF_POSTPROCESS(ch_vcf)
 
     // QC
-    VCF_QC_BCFTOOLS_VCFTOOLS(ch_vcf, ch_tbi)
+    // VCF_QC_BCFTOOLS_VCFTOOLS(ch_vcf, ch_tbi)
 
     // TODO: Variant Annotation
 

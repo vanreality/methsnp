@@ -15,7 +15,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow VCF_FILTERING {
+workflow VCF_POSTPROCESS {
     take:
     ch_vcf      // [meta, vcf, tbi]
 

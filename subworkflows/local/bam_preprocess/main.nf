@@ -1,5 +1,5 @@
 //
-// Subworkflow to convert BAM files to CRAM format
+// Subworkflow to preprocess bam files with samtools and revelio
 //
 
 /*
@@ -18,11 +18,11 @@ include { REVELIO } from '../../../modules/local/revelio/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    SUBWORKFLOW TO CONVERT BAM TO CRAM
+    SUBWORKFLOW TO PREPROCESS BAM FILES
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow BAM_TO_CRAM {
+workflow BAM_PREPROCESS {
     take:
     ch_samplesheet  // channel: [meta:[id:sample], bam_file_path]
 
