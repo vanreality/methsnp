@@ -32,12 +32,11 @@ workflow BAM_TO_CRAM {
     ch_cram         = Channel.empty()
     ch_versions     = Channel.empty()
 
-    // Get the reference FASTA file from params
+    // Index the FASTA file if FAI file does not exist
     def fasta_file_path = params.reference
     def fai_file_path   = "${params.reference}.fai"
     ch_fasta            = Channel.value([[:], file(fasta_file_path)])
 
-    // Index the FASTA file if FAI file does not exist
     if (!file(fai_file_path).exists()) {
         SAMTOOLS_FAIDX(ch_fasta, [[:],[]])
         ch_fai  = SAMTOOLS_FAIDX.out.fai
@@ -49,19 +48,15 @@ workflow BAM_TO_CRAM {
     // Extract a subset of the BAM file if the region BED file is provided
     def region_file_path = params.region
     if (!file(region_file_path).exists()) {
+        ch_bam = ch_samplesheet
+    } else {
         SAMTOOLS_INTERSECT(
             ch_samplesheet,
             Channel.value([[:], file(region_file_path)])
         )
         ch_bam      = SAMTOOLS_INTERSECT.out.bams
         ch_versions = ch_versions.mix(SAMTOOLS_INTERSECT.out.versions)
-    } else {
-        ch_bam = ch_samplesheet
     }
-
-    // Revilio preprocess: Mask CtoT and GtoA possible false positive variants
-    REVELIO(ch_bam, ch_fasta)
-    ch_bam = REVELIO.out.bam
 
     // Index the BAM file if BAI file does not exist
     ch_bai = ch_bam.map { meta, bam_file_path ->
@@ -81,7 +76,14 @@ workflow BAM_TO_CRAM {
         }
     }
 
-    ch_bam_bai = ch_samplesheet.join(ch_bai)
+    // Revilio preprocess: Mask CtoT and GtoA possible false positive variants
+    REVELIO(ch_bam, ch_fasta)
+    ch_bam = REVELIO.out.bam
+
+    SAMTOOLS_INDEX(ch_bam)
+    ch_bai = SAMTOOLS_INDEX.out.bai
+
+    ch_bam_bai = ch_bam.join(ch_bai)
 
     // Convert BAM to CRAM
     SAMTOOLS_CONVERT(

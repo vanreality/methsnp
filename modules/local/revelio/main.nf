@@ -3,8 +3,9 @@ process REVELIO {
     label 'process_low'
 
     input:
-    tuple val(meta), path(input)
-    tuple val(meta2), path(fasta)
+    tuple val(meta), path(bam)
+    tuple val(meta2), path(bai)
+    tuple val(meta3), path(fasta)
 
     output:
     tuple val(meta), path("${prefix}.preprocessed.bam")  , emit: bam
@@ -22,7 +23,7 @@ process REVELIO {
         -T ${task.cpus-1} \\
         -t . \\
         $args \\
-        $input \\
+        $bam \\
         ${prefix}.preprocessed.bam
     """
 }

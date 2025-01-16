@@ -12,7 +12,7 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_meth
 // local subworkflows
 include { BAM_TO_CRAM } from '../subworkflows/local/bam_to_cram/main'
 include { CRAM_HAPLOTYPECALLER_VARIANT_CALLING } from '../subworkflows/local/cram_haplotypecaller_variant_calling/main'
-include { VCF_FILTERING } from '../subworkflows/local/vcf_filtering/main'
+// include { VCF_FILTERING } from '../subworkflows/local/vcf_filtering/main'
 include { VCF_QC_BCFTOOLS_VCFTOOLS } from '../subworkflows/local/vcf_qc_bcftools_vcftools/main'
 
 /*
