@@ -9,7 +9,8 @@
 */
 
 include { SAMTOOLS_CONVERT } from '../../../modules/nf-core/samtools/convert/main'
-include { SAMTOOLS_INDEX } from '../../../modules/nf-core/samtools/index/main'
+include { SAMTOOLS_INDEX as SAMTOOLS_INDEX_INTERSECT } from '../../../modules/nf-core/samtools/index/main'
+include { SAMTOOLS_INDEX as SAMTOOLS_INDEX_REVELIO } from '../../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_FAIDX } from '../../../modules/nf-core/samtools/faidx/main'
 include { SAMTOOLS_VIEW } from '../../../modules/nf-core/samtools/view/main'
 include { SAMTOOLS_INTERSECT } from '../../../modules/local/samtools/intersect/main'
@@ -75,15 +76,15 @@ workflow BAM_TO_CRAM {
     //         return [meta, file(index_file)]
     //     }
     // }
-    SAMTOOLS_INDEX(ch_bam)
-    ch_bai = SAMTOOLS_INDEX.out.bai
+    SAMTOOLS_INDEX_INTERSECT(ch_bam)
+    ch_bai = SAMTOOLS_INDEX_INTERSECT.out.bai
 
     // Revilio preprocess: Mask CtoT and GtoA possible false positive variants
     REVELIO(ch_bam, ch_bai, ch_fasta, ch_fai)
     ch_bam = REVELIO.out.bam
 
-    SAMTOOLS_INDEX(ch_bam)
-    ch_bai = SAMTOOLS_INDEX.out.bai
+    SAMTOOLS_INDEX_REVELIO(ch_bam)
+    ch_bai = SAMTOOLS_INDEX_REVELIO.out.bai
 
     ch_bam_bai = ch_bam.join(ch_bai)
 
