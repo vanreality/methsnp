@@ -6,9 +6,10 @@ process REVELIO {
     tuple val(meta), path(bam)
     tuple val(meta2), path(bai)
     tuple val(meta3), path(fasta)
+    tuple val(meta4), path(fai)
 
     output:
-    tuple val(meta), path("${prefix}.preprocessed.bam")  , emit: bam
+    tuple val(meta), path("*.preprocessed.bam")  , emit: bam
     path  "versions.yml"                                 , emit: versions
 
     when:

@@ -12,8 +12,8 @@ process SAMTOOLS_INTERSECT {
     tuple val(meta2), path(bed)
 
     output:
-    tuple val(meta), path("${prefix}.intersected.bam")  , emit: bam
-    path  "versions.yml"                                , emit: versions
+    tuple val(meta), path("*.intersected.bam")  , emit: bam
+    path  "versions.yml"                        , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
