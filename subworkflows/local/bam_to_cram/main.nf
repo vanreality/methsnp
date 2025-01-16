@@ -59,22 +59,24 @@ workflow BAM_TO_CRAM {
     }
 
     // Index the BAM file if BAI file does not exist
-    ch_bai = ch_bam.map { meta, bam_file_path ->
-        def bam_file_string = bam_file_path.toString()           // Convert to String
-        def bai_file1 = bam_file_string.replace('.bam', '.bai')  // {prefix}.bai
-        def bai_file2 = bam_file_string + '.bai'                 // {prefix}.bam.bai
+    // ch_bai = ch_bam.map { meta, bam_file_path ->
+    //     def bam_file_string = bam_file_path.toString()           // Convert to String
+    //     def bai_file1 = bam_file_string.replace('.bam', '.bai')  // {prefix}.bai
+    //     def bai_file2 = bam_file_string + '.bai'                 // {prefix}.bam.bai
 
-        def index_file = file(bai_file1).exists() ? bai_file1 :
-                         file(bai_file2).exists() ? bai_file2 : null
+    //     def index_file = file(bai_file1).exists() ? bai_file1 :
+    //                      file(bai_file2).exists() ? bai_file2 : null
 
-        if (!index_file) {
-            SAMTOOLS_INDEX(meta: meta, bam_file_path: bam_file_path)
-            ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
-            return SAMTOOLS_INDEX.out.bai
-        } else {
-            return [meta, file(index_file)]
-        }
-    }
+    //     if (!index_file) {
+    //         SAMTOOLS_INDEX(meta: meta, bam_file_path: bam_file_path)
+    //         ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
+    //         return SAMTOOLS_INDEX.out.bai
+    //     } else {
+    //         return [meta, file(index_file)]
+    //     }
+    // }
+    SAMTOOLS_INDEX(ch_bam)
+    ch_bai = SAMTOOLS_INDEX.out.bai
 
     // Revilio preprocess: Mask CtoT and GtoA possible false positive variants
     REVELIO(ch_bam, ch_bai, ch_fasta, ch_fai)
