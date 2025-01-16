@@ -20,6 +20,7 @@ process REVELIO {
     python3 ${projectDir}/scripts/revelio/revelio.py \\
         -f ${fasta} \\
         -T ${task.cpus-1} \\
+        -t . \\
         $args \\
         $input \\
         ${prefix}.preprocessed.bam

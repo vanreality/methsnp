@@ -13,6 +13,7 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_meth
 include { BAM_TO_CRAM } from '../subworkflows/local/bam_to_cram/main'
 include { CRAM_HAPLOTYPECALLER_VARIANT_CALLING } from '../subworkflows/local/cram_haplotypecaller_variant_calling/main'
 include { VCF_FILTERING } from '../subworkflows/local/vcf_filtering/main'
+include { VCF_QC_BCFTOOLS_VCFTOOLS } from '../subworkflows/local/vcf_qc_bcftools_vcftools/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -38,10 +39,14 @@ workflow METHSNP {
     // GATK HaplotypeCaller
     CRAM_HAPLOTYPECALLER_VARIANT_CALLING(ch_cram, ch_fasta, ch_fai)
     ch_vcf = CRAM_HAPLOTYPECALLER_VARIANT_CALLING.out.vcf
+    ch_tbi = CRAM_HAPLOTYPECALLER_VARIANT_CALLING.out.tbi
     ch_versions = ch_versions.mix(CRAM_HAPLOTYPECALLER_VARIANT_CALLING.out.versions)
 
-    // CtoT/GtoA variants filtering and GATK VQSR
-    VCF_FILTERING(ch_vcf)
+    // Filtering
+    // VCF_FILTERING(ch_vcf)
+
+    // QC
+    VCF_QC_BCFTOOLS_VCFTOOLS(ch_vcf, ch_tbi)
 
     // TODO: Variant Annotation
 
