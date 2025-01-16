@@ -12,6 +12,7 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_meth
 // local subworkflows
 include { BAM_TO_CRAM } from '../subworkflows/local/bam_to_cram/main'
 include { CRAM_HAPLOTYPECALLER_VARIANT_CALLING } from '../subworkflows/local/cram_haplotypecaller_variant_calling/main'
+include { VCF_FILTERING } from '../subworkflows/local/vcf_filtering/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -29,17 +30,22 @@ workflow METHSNP {
 
     // BAM to CRAM
     BAM_TO_CRAM(ch_samplesheet)
-    ch_crams = BAM_TO_CRAM.out.crams
+    ch_cram  = BAM_TO_CRAM.out.cram
     ch_fasta = BAM_TO_CRAM.out.fasta
     ch_fai   = BAM_TO_CRAM.out.fai
     ch_versions = ch_versions.mix(BAM_TO_CRAM.out.versions)
 
     // GATK HaplotypeCaller
-    CRAM_HAPLOTYPECALLER_VARIANT_CALLING(ch_crams, ch_fasta, ch_fai)
+    CRAM_HAPLOTYPECALLER_VARIANT_CALLING(ch_cram, ch_fasta, ch_fai)
+    ch_vcf = CRAM_HAPLOTYPECALLER_VARIANT_CALLING.out.vcf
+    ch_versions = ch_versions.mix(CRAM_HAPLOTYPECALLER_VARIANT_CALLING.out.versions)
 
-    // TODO: GATK VQSR and CpG sites filtering
+    // CtoT/GtoA variants filtering and GATK VQSR
+    VCF_FILTERING(ch_vcf)
 
     // TODO: Variant Annotation
+
+    // TODO: Methylation Extraction
 
     //
     // Collate and save software versions

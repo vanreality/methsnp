@@ -50,10 +50,11 @@ workflow CRAM_HAPLOTYPECALLER_VARIANT_CALLING {
         [[:], []],
         [[:], []]
     )
+    ch_vcf = GATK4_HAPLOTYPECALLER.out.vcf.join(GATK4_HAPLOTYPECALLER.out.tbi)
+
     ch_versions = ch_versions.mix(GATK4_HAPLOTYPECALLER.out.versions)
 
     emit:
-    vcf = GATK4_HAPLOTYPECALLER.out.vcf
-    tbi = GATK4_HAPLOTYPECALLER.out.tbi
+    vcf = ch_vcf
     versions = ch_versions
 }

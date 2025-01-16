@@ -11,6 +11,9 @@
 include { SAMTOOLS_CONVERT } from '../../../modules/nf-core/samtools/convert/main'
 include { SAMTOOLS_INDEX } from '../../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_FAIDX } from '../../../modules/nf-core/samtools/faidx/main'
+include { SAMTOOLS_VIEW } from '../../../modules/nf-core/samtools/view/main'
+include { SAMTOOLS_INTERSECT } from '../../../modules/local/samtools/intersect/main'
+include { REVELIO } from '../../../modules/local/revelio/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -24,7 +27,7 @@ workflow BAM_TO_CRAM {
 
     main:
     ch_fasta        = Channel.empty()
-    ch_fasta_index  = Channel.empty()
+    ch_fai          = Channel.empty()
     ch_indexed_bam  = Channel.empty()
     ch_cram         = Channel.empty()
     ch_versions     = Channel.empty()
@@ -37,14 +40,31 @@ workflow BAM_TO_CRAM {
     // Index the FASTA file if FAI file does not exist
     if (!file(fai_file_path).exists()) {
         SAMTOOLS_FAIDX(ch_fasta, [[:],[]])
-        ch_fasta_index  = SAMTOOLS_FAIDX.out.fai
+        ch_fai  = SAMTOOLS_FAIDX.out.fai
         ch_versions     = ch_versions.mix(SAMTOOLS_FAIDX.out.versions)
     } else {
-        ch_fasta_index  = Channel.value([[:], file(fai_file_path)])
+        ch_fai  = Channel.value([[:], file(fai_file_path)])
     }
 
+    // Extract a subset of the BAM file if the region BED file is provided
+    def region_file_path = params.region
+    if (!file(region_file_path).exists()) {
+        SAMTOOLS_INTERSECT(
+            ch_samplesheet,
+            Channel.value([[:], file(region_file_path)])
+        )
+        ch_bam      = SAMTOOLS_INTERSECT.out.bams
+        ch_versions = ch_versions.mix(SAMTOOLS_INTERSECT.out.versions)
+    } else {
+        ch_bam = ch_samplesheet
+    }
+
+    // Revilio preprocess: Mask CtoT and GtoA possible false positive variants
+    REVELIO(ch_bam, ch_fasta)
+    ch_bam = REVELIO.out.bam
+
     // Index the BAM file if BAI file does not exist
-    ch_bam_index = ch_samplesheet.map { meta, bam_file_path ->
+    ch_bai = ch_bam.map { meta, bam_file_path ->
         def bam_file_string = bam_file_path.toString()           // Convert to String
         def bai_file1 = bam_file_string.replace('.bam', '.bai')  // {prefix}.bai
         def bai_file2 = bam_file_string + '.bai'                 // {prefix}.bam.bai
@@ -61,18 +81,21 @@ workflow BAM_TO_CRAM {
         }
     }
 
+    ch_bam_bai = ch_samplesheet.join(ch_bai)
+
     // Convert BAM to CRAM
     SAMTOOLS_CONVERT(
-        ch_samplesheet.join(ch_bam_index),
+        ch_bam_bai,
         ch_fasta,
-        ch_fasta_index
+        ch_fai
     )
 
     ch_cram_crai = SAMTOOLS_CONVERT.out.cram.join(SAMTOOLS_CONVERT.out.crai)
 
     emit:
-    crams       = ch_cram_crai
-    fasta       = ch_fasta
-    fai         = ch_fasta_index
-    versions    = ch_versions
+    bam        = ch_bam_bai
+    cram       = ch_cram_crai
+    fasta      = ch_fasta
+    fai        = ch_fai
+    versions   = ch_versions
 }
