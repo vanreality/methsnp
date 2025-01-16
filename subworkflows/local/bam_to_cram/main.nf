@@ -54,7 +54,7 @@ workflow BAM_TO_CRAM {
             ch_samplesheet,
             Channel.value([[:], file(region_file_path)])
         )
-        ch_bam      = SAMTOOLS_INTERSECT.out.bams
+        ch_bam      = SAMTOOLS_INTERSECT.out.bam
         ch_versions = ch_versions.mix(SAMTOOLS_INTERSECT.out.versions)
     }
 
