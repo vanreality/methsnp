@@ -25,25 +25,35 @@ workflow VCF_QC_BCFTOOLS_VCFTOOLS {
     ch_tbi
 
     main:
-
     ch_versions = Channel.empty()
 
-    def region_file_path = params.region
-    ch_region = Channel.fromPath(region_file_path)
+    ch_vcftools_tstv_counts    = Channel.empty()
+    ch_vcftools_tstv_qual      = Channel.empty()
+    ch_vcftools_filter_summary = Channel.empty()
 
+    // bcftools
     BCFTOOLS_STATS(ch_vcf.map{ meta, vcf -> [ meta, vcf, [] ] }, [[:],[]], [[:],[]], [[:],[]], [[:],[]], [[:],[]])
-    VCFTOOLS_TSTV_COUNT(ch_vcf, ch_region, [])
-    VCFTOOLS_TSTV_QUAL(ch_vcf, ch_region, [])
-    VCFTOOLS_SUMMARY(ch_vcf, ch_region, [])
+
+    // vcftools
+    def region_file_path = params.region
+    if (file(region_file_path).exists()) {
+        VCFTOOLS_TSTV_COUNT(ch_vcf, file(region_file_path), [])
+        VCFTOOLS_TSTV_QUAL(ch_vcf, file(region_file_path), [])
+        VCFTOOLS_SUMMARY(ch_vcf, file(region_file_path), [])
+
+        ch_vcftools_tstv_counts = VCFTOOLS_TSTV_COUNT.out.tstv_count
+        ch_vcftools_tstv_qual = VCFTOOLS_TSTV_QUAL.out.tstv_qual
+        ch_vcftools_filter_summary = VCFTOOLS_SUMMARY.out.filter_summary
+    }
 
     ch_versions = ch_versions.mix(BCFTOOLS_STATS.out.versions)
     ch_versions = ch_versions.mix(VCFTOOLS_TSTV_COUNT.out.versions)
 
     emit:
     bcftools_stats          = BCFTOOLS_STATS.out.stats
-    vcftools_tstv_counts    = VCFTOOLS_TSTV_COUNT.out.tstv_count
-    vcftools_tstv_qual      = VCFTOOLS_TSTV_QUAL.out.tstv_qual
-    vcftools_filter_summary = VCFTOOLS_SUMMARY.out.filter_summary
+    vcftools_tstv_counts    = ch_vcftools_tstv_counts
+    vcftools_tstv_qual      = ch_vcftools_tstv_qual
+    vcftools_filter_summary = ch_vcftools_filter_summary
 
     versions                = ch_versions
 }

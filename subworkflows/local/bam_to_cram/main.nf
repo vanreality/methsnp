@@ -80,7 +80,7 @@ workflow BAM_TO_CRAM {
     ch_bai = SAMTOOLS_INDEX_INTERSECT.out.bai
 
     // Revilio preprocess: Mask CtoT and GtoA possible false positive variants
-    REVELIO(ch_bam, ch_bai, ch_fasta, ch_fai)
+    REVELIO(ch_bam.join(ch_bai), ch_fasta, ch_fai)
     ch_bam = REVELIO.out.bam
 
     SAMTOOLS_INDEX_REVELIO(ch_bam)
