@@ -45,20 +45,29 @@ workflow METHSNP {
     ch_versions = ch_versions.mix(CRAM_HAPLOTYPECALLER_VARIANT_CALLING.out.versions)
 
     // DeepVariant
-    CRAM_DEEPVARIANT_VARIANT_CALLING(ch_cram, ch_fasta, ch_fai)
-    ch_dv_vcf   = CRAM_DEEPVARIANT_VARIANT_CALLING.out.vcf
-    ch_dv_tbi   = CRAM_DEEPVARIANT_VARIANT_CALLING.out.tbi
-    ch_versions = ch_versions.mix(CRAM_DEEPVARIANT_VARIANT_CALLING.out.versions)
+    // CRAM_DEEPVARIANT_VARIANT_CALLING(ch_cram, ch_fasta, ch_fai)
+    // ch_dv_vcf   = CRAM_DEEPVARIANT_VARIANT_CALLING.out.vcf
+    // ch_dv_tbi   = CRAM_DEEPVARIANT_VARIANT_CALLING.out.tbi
+    // ch_versions = ch_versions.mix(CRAM_DEEPVARIANT_VARIANT_CALLING.out.versions)
 
     // VCF postprocessing
-    // VCF_POSTPROCESS(ch_vcf)
+    // VCF_POSTPROCESS(ch_)
 
     // QC
     // VCF_QC_BCFTOOLS_VCFTOOLS(ch_vcf, ch_tbi)
 
     // Variant Annotation
-    VCF_ANNOTATE_SNPEFF(ch_gatk_vcf, val(params.snpeff_db), file(params.snpeff_cache))
-    VCF_ANNOTATE_SNPEFF(ch_dv_vcf, val(params.snpeff_db), file(params.snpeff_cache))
+    def snpeff_db = params.snpeff_db
+    ch_snpeff_cache = Channel.fromPath(file("${snpeff_cache}"), checkIfExists: true)
+                        .collect()
+                        .map( cache -> [ [ id:"${snpeff_db}" ], cache ] )
+
+    VCF_ANNOTATE_SNPEFF(
+        ch_gatk_vcf,
+        params.snpeff_db,
+        ch_snpeff_cache
+    )
+    // VCF_ANNOTATE_SNPEFF(ch_dv_vcf, params.snpeff_db, file(params.snpeff_cache))
 
     // TODO: Methylation Extraction
 
