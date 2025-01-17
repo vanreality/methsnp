@@ -12,8 +12,10 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_meth
 // local subworkflows
 include { BAM_PREPROCESS } from '../subworkflows/local/bam_preprocess/main'
 include { CRAM_HAPLOTYPECALLER_VARIANT_CALLING } from '../subworkflows/local/cram_haplotypecaller_variant_calling/main'
+include { CRAM_DEEPVARIANT_VARIANT_CALLING } from '../subworkflows/local/cram_deepvariant_variant_calling/main'
 //include { VCF_POSTPROCESS } from '../subworkflows/local/vcf_postprocess/main'
 include { VCF_QC_BCFTOOLS_VCFTOOLS } from '../subworkflows/local/vcf_qc_bcftools_vcftools/main'
+include { VCF_ANNOTATE_SNPEFF } from '../subworkflows/nf-core/vcf_annotate_snpeff/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -54,7 +56,9 @@ workflow METHSNP {
     // QC
     // VCF_QC_BCFTOOLS_VCFTOOLS(ch_vcf, ch_tbi)
 
-    // TODO: Variant Annotation
+    // Variant Annotation
+    VCF_ANNOTATE_SNPEFF(ch_gatk_vcf, val(params.snpeff_db), file(params.snpeff_cache))
+    VCF_ANNOTATE_SNPEFF(ch_dv_vcf, val(params.snpeff_db), file(params.snpeff_cache))
 
     // TODO: Methylation Extraction
 
