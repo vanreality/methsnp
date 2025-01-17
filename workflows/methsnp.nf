@@ -45,16 +45,28 @@ workflow METHSNP {
     ch_versions = ch_versions.mix(CRAM_HAPLOTYPECALLER_VARIANT_CALLING.out.versions)
 
     // DeepVariant
-    // CRAM_DEEPVARIANT_VARIANT_CALLING(ch_cram, ch_fasta, ch_fai)
-    // ch_dv_vcf   = CRAM_DEEPVARIANT_VARIANT_CALLING.out.vcf
-    // ch_dv_tbi   = CRAM_DEEPVARIANT_VARIANT_CALLING.out.tbi
-    // ch_versions = ch_versions.mix(CRAM_DEEPVARIANT_VARIANT_CALLING.out.versions)
+    CRAM_DEEPVARIANT_VARIANT_CALLING(ch_cram, ch_fasta, ch_fai)
+    ch_dv_vcf   = CRAM_DEEPVARIANT_VARIANT_CALLING.out.vcf
+    ch_dv_tbi   = CRAM_DEEPVARIANT_VARIANT_CALLING.out.tbi
+    ch_versions = ch_versions.mix(CRAM_DEEPVARIANT_VARIANT_CALLING.out.versions)
 
-    // VCF postprocessing
-    // VCF_POSTPROCESS(ch_)
+    // VCF postprocessing: merge and filter
+    ch_vcf_to_process = ch_gatk_vcf.join(ch_dv_vcf)
+                            .map { meta, file1, file2 ->
+                                return [meta, [file1, file2]]
+                            }
+    ch_tbi_to_process = ch_gatk_tbi.join(ch_dv_tbi)
+                            .map { meta, file1, file2 ->
+                                return [meta, [file1, file2]]
+                            }
+    VCF_POSTPROCESS(ch_vcf_to_process.join(ch_tbi_to_process), ch_fasta, ch_fai)
+    ch_vcf = VCF_POSTPROCESS.out.vcf
+    ch_tbi = VCF_POSTPROCESS.out.tbi
+    ch_versions = ch_versions.mix(VCF_POSTPROCESS.out.versions)
 
     // QC
-    // VCF_QC_BCFTOOLS_VCFTOOLS(ch_vcf, ch_tbi)
+    VCF_QC_BCFTOOLS_VCFTOOLS(ch_vcf, ch_tbi)
+    ch_versions = ch_versions.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.versions)
 
     // Variant Annotation
     def snpeff_db = params.snpeff_db
@@ -63,11 +75,10 @@ workflow METHSNP {
                         .map( cache -> [ [ id:"${snpeff_db}" ], cache ] )
 
     VCF_ANNOTATE_SNPEFF(
-        ch_gatk_vcf,
+        ch_vcf,
         snpeff_db,
         ch_snpeff_cache
     )
-    // VCF_ANNOTATE_SNPEFF(ch_dv_vcf, params.snpeff_db, file(params.snpeff_cache))
 
     // TODO: Methylation Extraction
 
