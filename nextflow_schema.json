@@ -51,6 +51,16 @@
                     "description": "Path to the genomic region file in BED format.",
                     "help_text": "Specify the genomic regions. It should be in BED format with a .bed extension.",
                     "fa_icon": "fas fa-file-tsv"
+                },
+                "snpeff_db": {
+                    "type": "string",
+                    "description": "snpEff database version."
+                },
+                "snpeff_cache": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "The snpEff database cache directory",
+                    "fa_icon": "fas fa-folder-open"
                 }
             }
         },

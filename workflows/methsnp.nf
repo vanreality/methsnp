@@ -58,13 +58,13 @@ workflow METHSNP {
 
     // Variant Annotation
     def snpeff_db = params.snpeff_db
-    ch_snpeff_cache = Channel.fromPath(file("${snpeff_cache}"), checkIfExists: true)
+    ch_snpeff_cache = Channel.fromPath(file("${params.snpeff_cache}"), checkIfExists: true)
                         .collect()
                         .map( cache -> [ [ id:"${snpeff_db}" ], cache ] )
 
     VCF_ANNOTATE_SNPEFF(
         ch_gatk_vcf,
-        params.snpeff_db,
+        snpeff_db,
         ch_snpeff_cache
     )
     // VCF_ANNOTATE_SNPEFF(ch_dv_vcf, params.snpeff_db, file(params.snpeff_cache))
