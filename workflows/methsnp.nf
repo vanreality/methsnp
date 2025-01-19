@@ -13,7 +13,7 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_meth
 include { BAM_PREPROCESS } from '../subworkflows/local/bam_preprocess/main'
 include { CRAM_HAPLOTYPECALLER_VARIANT_CALLING } from '../subworkflows/local/cram_haplotypecaller_variant_calling/main'
 include { CRAM_DEEPVARIANT_VARIANT_CALLING } from '../subworkflows/local/cram_deepvariant_variant_calling/main'
-//include { VCF_POSTPROCESS } from '../subworkflows/local/vcf_postprocess/main'
+include { VCF_POSTPROCESS } from '../subworkflows/local/vcf_postprocess/main'
 include { VCF_QC_BCFTOOLS_VCFTOOLS } from '../subworkflows/local/vcf_qc_bcftools_vcftools/main'
 include { VCF_ANNOTATE_SNPEFF } from '../subworkflows/nf-core/vcf_annotate_snpeff/main'
 
