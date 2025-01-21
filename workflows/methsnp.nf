@@ -16,7 +16,7 @@ include { CRAM_DEEPVARIANT_VARIANT_CALLING } from '../subworkflows/local/cram_de
 include { VCF_POSTPROCESS } from '../subworkflows/local/vcf_postprocess/main'
 include { VCF_QC_BCFTOOLS_VCFTOOLS } from '../subworkflows/local/vcf_qc_bcftools_vcftools/main'
 include { VCF_ANNOTATE_SNPEFF } from '../subworkflows/nf-core/vcf_annotate_snpeff/main'
-
+include { VCF_ANNOTATE_SNPSIFT } from '../subworkflows/local/vcf_annotate_snpsift/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -68,7 +68,8 @@ workflow METHSNP {
     VCF_QC_BCFTOOLS_VCFTOOLS(ch_vcf, ch_tbi)
     ch_versions = ch_versions.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.versions)
 
-    // Variant Annotation
+    // Variants Annotation
+    // SnpEff
     def snpeff_db = params.snpeff_db
     ch_snpeff_cache = Channel.fromPath(file("${params.snpeff_cache}"), checkIfExists: true)
                         .collect()
@@ -78,6 +79,13 @@ workflow METHSNP {
         ch_vcf,
         snpeff_db,
         ch_snpeff_cache
+    )
+    ch_vcf_tbi = VCF_ANNOTATE_SNPEFF.out.vcf_tbi
+    ch_versions = ch_versions.mix(VCF_ANNOTATE_SNPEFF.out.versions)
+
+    // SnpSift
+    VCF_ANNOTATE_SNPSIFT(
+        ch_vcf_tbi
     )
 
     // TODO: Methylation Extraction
