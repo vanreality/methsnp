@@ -61,6 +61,11 @@
                     "format": "directory-path",
                     "description": "The snpEff database cache directory",
                     "fa_icon": "fas fa-folder-open"
+                },
+                "snpsift_db": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "The snpSift database vcf file path"
                 }
             }
         },
