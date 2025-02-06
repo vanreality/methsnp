@@ -73,7 +73,7 @@ workflow METHSNP {
     def snpeff_db = params.snpeff_db
     ch_snpeff_cache = Channel.fromPath(file("${params.snpeff_cache}"), checkIfExists: true)
                         .collect()
-                        .map( cache -> [ [ id:"${snpeff_db}" ], cache ] )
+                        .map { cache -> [ [ id:"${snpeff_db}" ], cache ] }
 
     VCF_ANNOTATE_SNPEFF(
         ch_vcf,
@@ -103,7 +103,7 @@ workflow METHSNP {
 
 
     emit:
-    versions       = ch_versions                 // channel: [ path(versions.yml) ]
+    versions       = ch_collated_versions                 // channel: [ path(versions.yml) ]
 
 }
 
