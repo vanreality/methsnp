@@ -47,14 +47,12 @@ workflow BAM_PREPROCESS {
     }
 
     // Extract a subset of the BAM file if the region BED file is provided
-    params.region = params.region ?: ''
     if (!params.region) {
         ch_bam = ch_samplesheet
     } else {
-        region_file = file(params.region)
         SAMTOOLS_INTERSECT(
             ch_samplesheet,
-            Channel.value([[:], region_file])
+            Channel.value([[:], file(params.region)])
         )
         ch_bam      = SAMTOOLS_INTERSECT.out.bam
         ch_versions = ch_versions.mix(SAMTOOLS_INTERSECT.out.versions)

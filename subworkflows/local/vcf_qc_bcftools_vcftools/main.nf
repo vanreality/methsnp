@@ -29,9 +29,8 @@ workflow VCF_QC_BCFTOOLS_VCFTOOLS {
     BCFTOOLS_STATS(ch_vcf.map{ meta, vcf -> [ meta, vcf, [] ] }, [[:],[]], [[:],[]], [[:],[]], [[:],[]], [[:],[]])
 
     // vcftools
-    def region_file_path = params.region
-    if (file(region_file_path).exists()) {
-        VCFTOOLS_SUMMARY(ch_vcf, file(region_file_path), [])
+    if (params.region) {
+        VCFTOOLS_SUMMARY(ch_vcf, file(params.region), [])
         ch_vcftools_filter_summary = VCFTOOLS_SUMMARY.out.filter_summary
     }
 

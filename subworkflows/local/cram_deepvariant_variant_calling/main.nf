@@ -23,17 +23,15 @@ workflow CRAM_DEEPVARIANT_VARIANT_CALLING {
     ch_fai       // channel: [meta3, fai]
 
     main:
-    def region_file_path = params.region
-
     ch_versions = Channel.empty()
 
-    if (!file(region_file_path).exists()) {
+    if (!params.region) {
         ch_cram = ch_cram.map{ meta, cram, crai ->
             tuple(meta, cram, crai, [])
         }
     } else {
         ch_cram = ch_cram.map{ meta, cram, crai ->
-            tuple(meta, cram, crai, file(region_file_path))
+            tuple(meta, cram, crai, file(params.region))
         }
     }
 

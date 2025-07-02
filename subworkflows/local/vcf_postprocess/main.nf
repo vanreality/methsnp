@@ -26,11 +26,10 @@ workflow VCF_POSTPROCESS {
     main:
     ch_versions = Channel.empty()
 
-    def region_file_path = params.region
-    if (!file(region_file_path).exists()) {
+    if (!params.region) {
         BCFTOOLS_MERGE(ch_vcf_tbi, ch_fasta, ch_fai, [[:], []])
     } else {
-        BCFTOOLS_MERGE(ch_vcf_tbi, ch_fasta, ch_fai, [[:], file(region_file_path)])
+        BCFTOOLS_MERGE(ch_vcf_tbi, ch_fasta, ch_fai, [[:], file(params.region)])
     }
 
     ch_merged_vcf_tbi = BCFTOOLS_MERGE.out.vcf.join(BCFTOOLS_MERGE.out.index)
